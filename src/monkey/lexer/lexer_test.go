@@ -7,33 +7,65 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := `=+(){},;`
+	input := `
+		let five = 5;
+		let ten = 10;
+		let add = fn(x,y) {
+			x+y;
+		};
+		let result = add(five,ten);
+	`
 	cases := []struct {
-		name            string
 		expectedType    token.TokenType
 		expectedLiteral string
 	}{
-		{"ASSIGN", token.ASSIGN, "="},
-		{"PLUS", token.PLUS, "+"},
-		{"LPAREN", token.LPAREN, "("},
-		{"RPAREN", token.RPAREN, ")"},
-		{"LBRACE", token.LBRACE, "{"},
-		{"RBRACE", token.RBRACE, "}"},
-		{"COMMA", token.COMMA, ","},
-		{"SEMICOLON", token.SEMICOLON, ";"},
-		{"EOF", token.EOF, ""},
+		{token.LET, "let"},
+		{token.IDENT, "five"},
+		{token.ASSIGN, "="},
+		{token.INT, "5"},
+		{token.SEMICOLON, ";"},
+		{token.LET, "let"},
+		{token.IDENT, "ten"},
+		{token.ASSIGN, "="},
+		{token.INT, "10"},
+		{token.SEMICOLON, ";"},
+		{token.LET, "let"},
+		{token.IDENT, "add"},
+		{token.ASSIGN, "="},
+		{token.FUNCTION, "fn"},
+		{token.LPAREN, "("},
+		{token.IDENT, "x"},
+		{token.COMMA, ","},
+		{token.IDENT, "y"},
+		{token.RPAREN, ")"},
+		{token.LBRACE, "{"},
+		{token.IDENT, "x"},
+		{token.PLUS, "+"},
+		{token.IDENT, "y"},
+		{token.SEMICOLON, ";"},
+		{token.RBRACE, "}"},
+		{token.SEMICOLON, ";"},
+		{token.LET, "let"},
+		{token.IDENT, "result"},
+		{token.ASSIGN, "="},
+		{token.IDENT, "add"},
+		{token.LPAREN, "("},
+		{token.IDENT, "five"},
+		{token.COMMA, ","},
+		{token.IDENT, "ten"},
+		{token.RPAREN, ")"},
+		{token.SEMICOLON, ";"},
+		{token.EOF, ""},
 	}
 
 	l := New(input)
 	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			tok := l.NextToken()
-			if tok.Type != tc.expectedType {
-				t.Fatalf("Expected TokenType %q, got %q instead\n", tc.expectedType, tok.Type)
-			}
-			if tok.Literal != tc.expectedLiteral {
-				t.Fatalf("Expected Literal %q, got %q instead\n", tc.expectedLiteral, tok.Literal)
-			}
-		})
+		tok := l.NextToken()
+		if tok.Type != tc.expectedType {
+			t.Fatalf("Expected TokenType %q, got %q instead\n", tc.expectedType, tok.Type)
+		}
+		if tok.Literal != tc.expectedLiteral {
+			t.Fatalf("Expected Literal %q, got %q instead\n", tc.expectedLiteral, tok.Literal)
+		}
 	}
 }
