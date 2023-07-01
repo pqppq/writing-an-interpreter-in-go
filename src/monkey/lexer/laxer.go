@@ -1,9 +1,9 @@
 package lexer
 
 import (
-	"net/http"
+	"fmt"
 
-	"github.com/pqppq/monkey/token"
+	"github.com/pqppq/writing-an-interpreter-in-go/monkey/token"
 )
 
 type Lexer struct {
@@ -11,10 +11,6 @@ type Lexer struct {
 	position     int  // current position in input(points to current char)
 	readPosition int  // current reading position in input(points to next char)
 	ch           byte // current char under examination
-}
-
-func (l *Lexer) ServeHTTP(_ http.ResponseWriter, _ *http.Request) {
-	panic("not implemented") // TODO: Implement
 }
 
 func newToken(tokenType token.TokenType, ch byte) token.Token {
@@ -31,20 +27,33 @@ func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 
 	l.skipWhitespace()
+	fmt.Println(l.position, l.readPosition, string(l.ch))
 
 	switch l.ch {
 	case '=':
 		tok = newToken(token.ASSIGN, l.ch)
+	case '+':
+		tok = newToken(token.PLUS, l.ch)
+	case '-':
+		tok = newToken(token.MINUS, l.ch)
+	case '!':
+		tok = newToken(token.BANG, l.ch)
+	case '/':
+		tok = newToken(token.SLASH, l.ch)
+	case '*':
+		tok = newToken(token.ASTERISK, l.ch)
+	case '<':
+		tok = newToken(token.LT, l.ch)
+	case '>':
+		tok = newToken(token.GT, l.ch)
 	case ';':
 		tok = newToken(token.SEMICOLON, l.ch)
+	case ',':
+		tok = newToken(token.COMMA, l.ch)
 	case '(':
 		tok = newToken(token.LPAREN, l.ch)
 	case ')':
 		tok = newToken(token.RPAREN, l.ch)
-	case ',':
-		tok = newToken(token.COMMA, l.ch)
-	case '+':
-		tok = newToken(token.PLUS, l.ch)
 	case '{':
 		tok = newToken(token.LBRACE, l.ch)
 	case '}':
