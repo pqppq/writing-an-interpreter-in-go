@@ -1,10 +1,10 @@
 package lexer
 
 import (
-	"fmt"
-
 	"github.com/pqppq/writing-an-interpreter-in-go/monkey/token"
 )
+
+const NUL byte = 0
 
 type Lexer struct {
 	input        string
@@ -27,17 +27,27 @@ func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 
 	l.skipWhitespace()
-	fmt.Println(l.position, l.readPosition, string(l.ch))
 
 	switch l.ch {
 	case '=':
-		tok = newToken(token.ASSIGN, l.ch)
+		if l.peekChar() == '=' {
+			l.readChar()
+			tok = token.Token{Type: token.EQ, Literal: "=="}
+		} else {
+			tok = newToken(token.ASSIGN, l.ch)
+		}
 	case '+':
 		tok = newToken(token.PLUS, l.ch)
 	case '-':
 		tok = newToken(token.MINUS, l.ch)
 	case '!':
 		tok = newToken(token.BANG, l.ch)
+		if l.peekChar() == '=' {
+			l.readChar()
+			tok = token.Token{Type: token.NOT_EQ, Literal: "!="}
+		} else {
+			tok = newToken(token.BANG, l.ch)
+		}
 	case '/':
 		tok = newToken(token.SLASH, l.ch)
 	case '*':
@@ -58,7 +68,7 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.LBRACE, l.ch)
 	case '}':
 		tok = newToken(token.RBRACE, l.ch)
-	case 0:
+	case NUL:
 		tok.Literal = ""
 		tok.Type = token.EOF
 	default:
@@ -81,7 +91,7 @@ func (l *Lexer) NextToken() token.Token {
 // read one chacater and advance our position in the input string
 func (l *Lexer) readChar() {
 	if l.readPosition >= len(l.input) {
-		l.ch = 0 // ascii code for NUL character
+		l.ch = NUL
 	} else {
 		l.ch = l.input[l.readPosition]
 	}
@@ -109,6 +119,14 @@ func (l *Lexer) skipWhitespace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
 		l.readChar()
 	}
+}
+
+// peek next char
+func (l *Lexer) peekChar() byte {
+	if l.readPosition >= len(l.input) {
+		return NUL
+	}
+	return l.input[l.readPosition]
 }
 
 func isLetter(ch byte) bool {
