@@ -76,3 +76,15 @@ example
         returnValue: {type: "string-literal", value: "goodbye"} }
 }
 ```
+
+[Pratt Parser](https://ja.wikipedia.org/wiki/Pratt%E3%83%91%E3%83%BC%E3%82%B5) 
+
+- prefix operator
+    - an operator in front of its operand
+    - ex. `--5`
+- postfix operator
+    - an operator after its operand
+    - ex `x++`
+- infix operator
+    - appear in binary expressions
+    - ex `5 * 8`

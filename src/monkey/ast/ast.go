@@ -1,10 +1,16 @@
 package ast
 
-import "github.com/pqppq/writing-an-interpreter-in-go/monkey/token"
+import (
+	"bytes"
+	"fmt"
+
+	"github.com/pqppq/writing-an-interpreter-in-go/monkey/token"
+)
 
 type Node interface {
 	// returns the literal value of the token associated with
 	TokenLiteral() string
+	String() string
 }
 
 type Statement interface {
@@ -29,6 +35,14 @@ func (p *Program) TokenLiteral() string {
 	}
 }
 
+func (p *Program) String() string {
+	var out bytes.Buffer
+	for _, s := range p.Statements {
+		out.WriteString(s.String())
+	}
+	return out.String()
+}
+
 // let <identifier> = <expression>;
 type LetStatement struct {
 	Token token.Token // token.LET
@@ -36,6 +50,18 @@ type LetStatement struct {
 	Value Expression  // <expression>
 }
 
+func (ls *LetStatement) String() string {
+	var out bytes.Buffer
+	expr := fmt.Sprintf("let %s = ", ls.Name.String())
+
+	if ls.Value != nil {
+		expr += ls.Value.String()
+	}
+	expr += ";"
+
+	out.WriteString(expr)
+	return out.String()
+}
 func (ls *LetStatement) statementNode() {}
 func (ls *LetStatement) TokenLiteral() string {
 	return ls.Token.Literal
@@ -46,6 +72,7 @@ type Identifier struct {
 	Value string
 }
 
+func (i *Identifier) String() string  { return i.Value }
 func (i *Identifier) expressionNode() {}
 func (i *Identifier) TokenLiteral() string {
 	return i.Token.Literal
@@ -57,7 +84,29 @@ type ReturnStatement struct {
 	ReturnValue Expression
 }
 
+func (rs *ReturnStatement) String() string {
+	var out bytes.Buffer
+
+	expr := fmt.Sprintf("return ")
+
+	if rs.ReturnValue != nil {
+		expr += rs.ReturnValue.String()
+	}
+
+	expr += ";"
+	return out.String()
+}
 func (rs *ReturnStatement) statementNode() {}
 func (rs *ReturnStatement) TokenLiteral() string {
 	return rs.Token.Literal
+}
+
+type ExpressionStatement struct {
+	Token      token.Token // the first token of the expression
+	Expression Expression
+}
+
+func (es *ExpressionStatement) statementNode() {}
+func (es *ExpressionStatement) TokenLiteral() string {
+	return es.Token.Literal
 }
