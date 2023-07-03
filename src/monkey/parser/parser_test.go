@@ -151,6 +151,50 @@ func TestParsingPrefixExpressions(t *testing.T) {
 	}
 }
 
+func TestParsingInfixExpression(t *testing.T) {
+	tests := []struct {
+		input      string
+		operator   string
+		leftValue  int64
+		rightValue int64
+	}{
+		{"5 + 5;", "+", 5, 5},
+		{"5 - 5;", "-", 5, 5},
+		{"5 * 5;", "*", 5, 5},
+		{"5 / 5;", "/", 5, 5},
+		{"5 > 5;", ">", 5, 5},
+		{"5 < 5;", "<", 5, 5},
+		{"5 == 5;", "==", 5, 5},
+		{"5 != 5;", "!=", 5, 5},
+	}
+
+	for _, test := range tests {
+		program := getProgram(t, test.input)
+
+		if len(program.Statements) != 1 {
+			t.Fatalf("expected 1 statement, got %d instead", len(program.Statements))
+		}
+		stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("expected *ast.ExpressionStatement, got %T instead", program.Statements[0])
+		}
+
+		exp, ok := stmt.Expression.(*ast.InfixExpression)
+		if !ok {
+			t.Fatalf("expected *ast.InfixExpression, got %T instead", stmt.Expression)
+		}
+		if !testIntegerLiteral(t, exp.Left, test.leftValue) {
+			return
+		}
+		if exp.Operator != test.operator {
+			t.Fatalf("expected operator to be '%s', got '%s' instead", test.operator, exp.Operator)
+		}
+		if !testIntegerLiteral(t, exp.Right, test.rightValue) {
+			return
+		}
+	}
+}
+
 func getProgram(t *testing.T, input string) *ast.Program {
 	l := lexer.New(input)
 	p := New(l)
