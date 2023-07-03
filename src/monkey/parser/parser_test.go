@@ -105,6 +105,34 @@ func TestIdentifierExpression(t *testing.T) {
 	}
 }
 
+func TestIntegerLiteralExpression(t *testing.T) {
+	input := `5;`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParseErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("expected 1 statement, got %d instead", len(program.Statements))
+	}
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("expected *ast.ExpressionStatement, got %T instead", program.Statements[0])
+	}
+
+	literal, ok := stmt.Expression.(*ast.IntegerLiteral)
+	if !ok {
+		t.Fatalf("expected *ast.IntegerLiteral, got %T instead", stmt.Expression)
+	}
+	if literal.Value != 5 {
+		t.Errorf("expected literal.Value to be 5, got %d instead", literal.Value)
+	}
+	if literal.TokenLiteral() != "5" {
+		t.Errorf("expected literal.TokenLiteral() to be '5', got %q instead", literal.TokenLiteral())
+	}
+}
+
 func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 	if s.TokenLiteral() != "let" {
 		t.Errorf("expected literal 'let', got %s instead", s.TokenLiteral())
