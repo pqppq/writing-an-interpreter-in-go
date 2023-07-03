@@ -106,6 +106,13 @@ type ExpressionStatement struct {
 	Expression Expression
 }
 
+func (es *ExpressionStatement) String() string {
+	var out bytes.Buffer
+	if es.Expression != nil {
+		out.WriteString(es.Expression.String())
+	}
+	return out.String()
+}
 func (es *ExpressionStatement) statementNode() {}
 func (es *ExpressionStatement) TokenLiteral() string {
 	return es.Token.Literal

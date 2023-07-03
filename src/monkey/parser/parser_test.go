@@ -76,6 +76,35 @@ func TestReturnsStatements(t *testing.T) {
 	}
 }
 
+func TestIdentifierExpression(t *testing.T) {
+	input := `foobar;`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParseErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("expected 1 statement, got %d instead", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("expected *ast.ExpressionStatement, got %T instead", program.Statements[0])
+	}
+
+	ident, ok := stmt.Expression.(*ast.Identifier)
+	if !ok {
+		t.Fatalf("expected *ast.Identifier, got %T instead", stmt.Expression)
+	}
+	if ident.Value != "foobar" {
+		t.Errorf("expected ident.Value to be 'foobar', got %q instead", ident.Value)
+	}
+	if ident.TokenLiteral() != "foobar" {
+		t.Errorf("expected ident.TokenLiteral() to be 'foobar', got %q instead", ident.Value)
+	}
+}
+
 func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 	if s.TokenLiteral() != "let" {
 		t.Errorf("expected literal 'let', got %s instead", s.TokenLiteral())
