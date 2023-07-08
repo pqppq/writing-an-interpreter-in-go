@@ -3,6 +3,7 @@ package ast
 import (
 	"bytes"
 	"fmt"
+	"strings"
 
 	"github.com/pqppq/writing-an-interpreter-in-go/monkey/token"
 )
@@ -210,4 +211,27 @@ func (bs *BlockStatement) String() string {
 func (bs *BlockStatement) statementNode() {}
 func (bs *BlockStatement) TokenLiteral() string {
 	return bs.Token.Literal
+}
+
+// fn <parameters> <block statement>
+// <parameters> = <parameter one>, <parameter two>, ...
+type FunctionLiteral struct {
+	Token      token.Token // token.FUNCTION
+	Parameters []*Identifier
+	Body       *BlockStatement
+}
+
+func (fl *FunctionLiteral) String() string {
+	params := []string{}
+	for _, p := range fl.Parameters {
+		params = append(params, p.String())
+	}
+
+	expr := fmt.Sprintf("fn(%s) %s", strings.Join(params, ", "), fl.Body.String())
+
+	return expr
+}
+func (fl *FunctionLiteral) expressionNode() {}
+func (fl *FunctionLiteral) TokenLiteral() string {
+	return fl.Token.Literal
 }
