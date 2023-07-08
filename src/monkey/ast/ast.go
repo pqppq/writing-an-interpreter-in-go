@@ -235,3 +235,25 @@ func (fl *FunctionLiteral) expressionNode() {}
 func (fl *FunctionLiteral) TokenLiteral() string {
 	return fl.Token.Literal
 }
+
+// <expression>(<comma separated expressions>)
+type CallExpression struct {
+	Token     token.Token // token.LPAREN
+	Function  Expression  // Identifier or FunctionLiteral
+	Arguments []Expression
+}
+
+func (ce *CallExpression) String() string {
+	args := []string{}
+	for _, a := range ce.Arguments {
+		args = append(args, a.String())
+	}
+
+	expr := fmt.Sprintf("%s(%s)", ce.Function.String(), strings.Join(args, ", "))
+
+	return expr
+}
+func (ce *CallExpression) expressionNode() {}
+func (ce *CallExpression) TokenLiteral() string {
+	return ce.Token.Literal
+}

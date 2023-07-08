@@ -226,6 +226,9 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		{"2 / (5 + 5)", "(2 / (5 + 5))"},
 		{"-(5 + 5)", "(-(5 + 5))"},
 		{"!(true == true)", "(!(true == true))"},
+		{"a + add(b * c) + d", "((a + add((b * c))) + d)"},
+		{"add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))", "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"},
+		{"add(a + b + c * d / f + g)", "add((((a + b) + ((c * d) / f)) + g))"},
 	}
 
 	for _, tt := range tests {
@@ -413,6 +416,39 @@ func TestFunctionParameterParsing(t *testing.T) {
 			testLiteralExpression(t, fn.Parameters[i], ident)
 		}
 	}
+}
+
+func TestCallExpressionParsing(t *testing.T) {
+	input := `add(1, 2 * 3, 4 + 5);`
+
+	program := getProgram(t, input)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("expected 1 statement, got %d instead", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("expected *ast.CallExpression, got %T instead", stmt.Expression)
+	}
+
+	expr, ok := stmt.Expression.(*ast.CallExpression)
+	if !ok {
+		t.Fatalf("expected *ast.Identifier, got %T instead", stmt.Expression)
+	}
+
+	if !testIdentifier(t, expr.Function, "add") {
+		return
+	}
+
+	if len(expr.Arguments) != 3 {
+		fmt.Println(expr.Arguments)
+		t.Fatalf("expected 3 arguments, got %d instead", len(expr.Arguments))
+	}
+
+	testLiteralExpression(t, expr.Arguments[0], 1)
+	testInfixExpression(t, expr.Arguments[1], 2, "*", 3)
+	testInfixExpression(t, expr.Arguments[2], 4, "+", 5)
 }
 
 func getProgram(t *testing.T, input string) *ast.Program {
