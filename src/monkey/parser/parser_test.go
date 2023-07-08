@@ -266,6 +266,94 @@ func TestBooleanExpression(t *testing.T) {
 	}
 }
 
+func TestIfExpression(t *testing.T) {
+	input := `if (x < y) { x }`
+
+	program := getProgram(t, input)
+	if len(program.Statements) != 1 {
+		t.Fatalf("expected 1 statement, got %d instead", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("expected *ast.IfExpressionStatement, got %T instead", program.Statements[0])
+	}
+
+	expr, ok := stmt.Expression.(*ast.IfExpression)
+	if !ok {
+		t.Fatalf("expected *ast.IfExpression, got %T instead", stmt.Expression)
+	}
+	if !testInfixExpression(t, expr.Condition, "x", "<", "y") {
+		t.Fatalf("expected condition to be x < y, got %s instead", expr.Condition.String())
+		return
+	}
+	if len(expr.Consequence.Statements) != 1 {
+		t.Fatalf("expected 1 consequence statement, got %d instead", len(expr.Consequence.Statements))
+	}
+
+	consequence, ok := expr.Consequence.Statements[0].(*ast.ExpressionStatement)
+	if !testIdentifier(t, consequence.Expression, "x") {
+		t.Fatalf("expected consequence to be x, got %s instead", consequence.Expression.String())
+		return
+	}
+	if expr.Alternative != nil {
+		t.Errorf("expected nil alternative, got %T instead", expr.Alternative)
+
+	}
+}
+
+func TestIfElseExpression(t *testing.T) {
+	input := `if (x < y) { x } else { y }`
+
+	program := getProgram(t, input)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("expected 1 statement, got %d instead", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("expected *ast.ExpressionStatement, got %T instead", program.Statements[0])
+	}
+
+	exp, ok := stmt.Expression.(*ast.IfExpression)
+	if !ok {
+		t.Fatalf("expected *ast.IfExpression, got %T instead", stmt.Expression)
+	}
+
+	if !testInfixExpression(t, exp.Condition, "x", "<", "y") {
+		return
+	}
+
+	if len(exp.Consequence.Statements) != 1 {
+		t.Errorf("exp.Consequence.Statements does not contain 1 statements. got=%d\n", len(exp.Consequence.Statements))
+	}
+
+	consequence, ok := exp.Consequence.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("Statements[0] is not ast.ExpressionStatement. got=%T", exp.Consequence.Statements[0])
+	}
+
+	if !testIdentifier(t, consequence.Expression, "x") {
+		return
+	}
+
+	if len(exp.Alternative.Statements) != 1 {
+		t.Errorf("exp.Alternative.Statements does not contain 1 statements. got=%d\n",
+			len(exp.Alternative.Statements))
+	}
+
+	alternative, ok := exp.Alternative.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("Statements[0] is not ast.ExpressionStatement. got=%T",
+			exp.Alternative.Statements[0])
+	}
+
+	if !testIdentifier(t, alternative.Expression, "y") {
+		return
+	}
+}
+
 func getProgram(t *testing.T, input string) *ast.Program {
 	l := lexer.New(input)
 	p := New(l)

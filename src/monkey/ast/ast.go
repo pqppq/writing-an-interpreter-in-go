@@ -172,3 +172,42 @@ func (b *Boolean) expressionNode() {}
 func (b *Boolean) TokenLiteral() string {
 	return b.Token.Literal
 }
+
+// if (<condition>) <consequence> else <alternative>
+type IfExpression struct {
+	Token       token.Token // token.IF
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative *BlockStatement
+}
+
+func (ie *IfExpression) String() string {
+	expr := fmt.Sprintf("if%s %s", ie.Condition.String(), ie.Consequence.String())
+	if ie.Alternative != nil {
+		expr += fmt.Sprintf("else %s", ie.Alternative.String())
+	}
+
+	return expr
+}
+func (ie *IfExpression) expressionNode() {}
+func (ie *IfExpression) TokenLiteral() string {
+	return ie.Token.Literal
+}
+
+type BlockStatement struct {
+	Token      token.Token // token.LBRACE
+	Statements []Statement
+}
+
+func (bs *BlockStatement) String() string {
+	var out bytes.Buffer
+
+	for _, s := range bs.Statements {
+		out.WriteString(s.String())
+	}
+	return out.String()
+}
+func (bs *BlockStatement) statementNode() {}
+func (bs *BlockStatement) TokenLiteral() string {
+	return bs.Token.Literal
+}
