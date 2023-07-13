@@ -3,14 +3,14 @@
 ## Overview
 The Monkey Programing Language & Interpreter
 - C-likesyntax variablebindings
-- integersandbooleans
-- arithmeticexpressions
-- built-infunctions
-- first-classandhigher-orderfunctions
+- integers and booleans
+- arithmetic expressions
+- built-in functions
+- first-class and higher-orderfunctions
 - closures
-- astringdatastructure
-- anarraydatastructure
-- ahashdatastructure
+- a string data structure
+- a narray data structure
+- a hash data structure
 
 Major parts
 - lexer
@@ -88,3 +88,33 @@ example
 - infix operator
     - appear in binary expressions
     - ex `5 * 8`
+
+## EVALUATION
+
+Two apploach
+- Traverse the AST, visit each node and do what the node signifies: print a string, add two numbers, execute a function's body - all on the fly.
+- Compilesthe bytecode and use a virtual machine to evalueate.
+
+Tree-walking strategy
+
+pseudo code
+```
+function eval(astNode) {
+  if (astNode is integerliteral) {
+    return astNode.integerValue
+  } else if (astNode is booleanLiteral) {
+    return astNode.booleanValue
+  } else if (astNode is infixExpression) {
+    leftEvaluated = eval(astNode.Left)
+    rightEvaluated = eval(astNode.Right)
+
+    if astNode.Operator == "+" {
+      return leftEvaluated + rightEvaluated
+    } else if ast.Operator == "-" {
+      return leftEvaluated - rightEvaluated
+    }
+  }
+}
+```
+
+
