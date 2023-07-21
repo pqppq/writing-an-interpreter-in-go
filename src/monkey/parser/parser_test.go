@@ -442,7 +442,6 @@ func TestCallExpressionParsing(t *testing.T) {
 	}
 
 	if len(expr.Arguments) != 3 {
-		fmt.Println(expr.Arguments)
 		t.Fatalf("expected 3 arguments, got %d instead", len(expr.Arguments))
 	}
 
