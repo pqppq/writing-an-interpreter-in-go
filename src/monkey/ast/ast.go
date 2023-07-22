@@ -270,3 +270,39 @@ func (sl *StringLiteral) expressionNode() {}
 func (sl *StringLiteral) TokenLiteral() string {
 	return sl.Token.Literal
 }
+
+type ArrayLiteral struct {
+	Token    token.Token // token.LBRACKET
+	Elements []Expression
+}
+
+func (al *ArrayLiteral) String() string {
+	elements := []string{}
+	for _, e := range al.Elements {
+		elements = append(elements, e.String())
+	}
+
+	expr := fmt.Sprintf("[%s]", strings.Join(elements, ", "))
+
+	return expr
+}
+func (al *ArrayLiteral) expressionNode() {}
+func (al *ArrayLiteral) TokenLiteral() string {
+	return al.Token.Literal
+}
+
+type IndexExpression struct {
+	Token token.Token // token.LBRACKET
+	Left  Expression  // list
+	Index Expression
+}
+
+func (ie *IndexExpression) String() string {
+	expr := fmt.Sprintf("(%s[%s])", ie.Left.String(), ie.Index.String())
+
+	return expr
+}
+func (ie *IndexExpression) expressionNode() {}
+func (ie *IndexExpression) TokenLiteral() string {
+	return ie.Token.Literal
+}
