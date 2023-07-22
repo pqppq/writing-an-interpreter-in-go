@@ -306,3 +306,23 @@ func (ie *IndexExpression) expressionNode() {}
 func (ie *IndexExpression) TokenLiteral() string {
 	return ie.Token.Literal
 }
+
+type HashLiteral struct {
+	Token token.Token // token.LBRACE
+	Pairs map[Expression]Expression
+}
+
+func (hl *HashLiteral) String() string {
+	pairs := []string{}
+	for k, v := range hl.Pairs {
+		pairs = append(pairs, fmt.Sprintf("%s: %s", k.String(), v.String()))
+	}
+
+	expr := fmt.Sprintf("{%s}", strings.Join(pairs, ", "))
+
+	return expr
+}
+func (hl *HashLiteral) expressionNode() {}
+func (hl *HashLiteral) TokenLiteral() string {
+	return hl.Token.Literal
+}
